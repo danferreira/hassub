@@ -6,12 +6,13 @@ import Data.Char
 import Data.Maybe
 
 import OpenSubtitles
-import Login
-import Search
-import Download
+import qualified Login as L
+import qualified Search as S
+import qualified Download as D
 import File
 import Options
 
+userAgent :: String
 userAgent = "myapp"
 
 getSubtitle :: SubLanguageId -> String -> IO ()
@@ -25,35 +26,37 @@ getSubtitle lang file = do
     (hash, size) <- getHashAndSize file
 
     putStrLn "Logging..."
-    (LoginResponse t s) <- login "" "" lang userAgent
-    checkResponseStatus s
+    loginResp <- login "" "" lang userAgent
+    checkResponseStatus (L.status loginResp)
 
-    let token = fromJust t
+    let token = fromJust (L.token loginResp)
     putStrLn ("Logged: " ++ token)
 
     putStrLn "Searching..."
-    (SearchResponse s d) <- search token [(SearchRequest file lang hash size)]
-    checkResponseStatus s
+    searchResp <- search token [(S.SearchRequest file lang hash size)]
+    checkResponseStatus (S.status searchResp)
 
-    putStrLn $ "Found " ++ (show . length) d ++ " results"
-    (SearchSubResponse i _ _ _) <- askForSub d
+    let searchData = S.result searchResp
+
+    putStrLn $ "Found " ++ (show . length) searchData ++ " results"
+    (S.SearchSubResponse i _ _ _) <- askForSub searchData
     putStrLn "Downloading..."
 
-    (DownloadResponse s r) <- download token [i]
-    checkResponseStatus s
+    downResp <- download token [i]
+    checkResponseStatus (D.status downResp)
 
     putStrLn "Saving..."
-    saveSubtitle file $ decodeAnddecompress (data_ (head r))
+    saveSubtitle file $ decodeAnddecompress (D.data_ $ head (D.result downResp))
 
     putStrLn "Done."
 
 
-askForSub :: [SearchSubResponse] -> IO SearchSubResponse
+askForSub :: [S.SearchSubResponse] -> IO S.SearchSubResponse
 askForSub list = do
                   let orderedList = sortBy sortSubtitlesGT list
                   let indexedList = zip ([1..] :: [Integer]) orderedList
                   putStrLn "Subtitles found: "
-                  mapM_ (\(i, (SearchSubResponse is n r c)) -> putStrLn $ show i ++ "- "++ is ++ " " ++ n ++ "(" ++ r ++ "/" ++ c ++ ")" ) indexedList
+                  mapM_ (\(i, (S.SearchSubResponse is n r c)) -> putStrLn $ show i ++ "- "++ is ++ " " ++ n ++ "(" ++ r ++ "/" ++ c ++ ")" ) indexedList
                   putStr "Choose a subtitle from the list: "
                   n <- getLine
                   if validate n then
@@ -63,10 +66,10 @@ askForSub list = do
                    else
                       askForSub list
                 where
-                  validate n =  (not . null) n && (all isDigit) n && (read n > 0 && read n <= length list)
+                  validate n =  (not . null) n && (all isDigit) n && ((read n :: Int) > 0 && (read n :: Int) <= length list)
 
-sortSubtitlesGT :: SearchSubResponse -> SearchSubResponse -> Ordering
-sortSubtitlesGT (SearchSubResponse _ _ r1 c1) (SearchSubResponse _ _ r2 c2) =
+sortSubtitlesGT :: S.SearchSubResponse -> S.SearchSubResponse -> Ordering
+sortSubtitlesGT (S.SearchSubResponse _ _ r1 c1) (S.SearchSubResponse _ _ r2 c2) =
                   case compare (c r1) (c r2) of
                     EQ -> compare (c c2) (c c1)
                     LT -> GT
