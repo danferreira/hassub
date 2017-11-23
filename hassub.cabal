@@ -1,14 +1,13 @@
 name:                hassub
 version:             0.1.0.0
--- synopsis:
--- description:
-homepage:            https://github.com/githubuser/hassub#readme
-license:             BSD3
+synopsis:            A command-line subtitle downloader
+homepage:            https://github.com/danferreira/hassub#readme
+license:             MIT
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2017 Author name here
-category:            Web
+author:              Daniel Ferreira
+maintainer:          djf989@gmail.com
+copyright:           2017 Daniel Ferreira
+category:            Console
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
@@ -45,4 +44,4 @@ executable hassub-exe
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/hassub
+  location: https://github.com/danferreira/hassub
