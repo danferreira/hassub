@@ -16,7 +16,8 @@ Hassub
 Usage:
   hassub -l=LANG --all
   hassub -l=LANG <file>...
-  hassub --help | --version
+  hassub --help
+  hassub --version
 
 Options:
   -l=LANG                    Subtitle language. Use ISO 639-2 codes e.g. eng (use pob to portugues br)
