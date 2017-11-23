@@ -5,10 +5,10 @@ import Control.Monad
 import Data.Char
 import Data.Maybe
 
-import OpenSubtitles
-import qualified Login as L
-import qualified Search as S
-import qualified Download as D
+import OpenSubtitles.API
+import qualified OpenSubtitles.Login as L
+import qualified OpenSubtitles.Search as S
+import qualified OpenSubtitles.Download as D
 import File
 import Options
 
@@ -43,7 +43,11 @@ getSubtitle lang file = do
       $ die "No subtitles found"
 
     putStrLn $ "Found " ++ show count ++ " results"
-    (S.SearchSubResponse i _ _ _) <- askForSub searchData
+    i <- askForSub searchData
+
+    when (i == "0")
+      $ exit "Closing..."
+
     putStrLn "Downloading..."
 
     downResp <- download token [i]
@@ -54,23 +58,25 @@ getSubtitle lang file = do
 
     putStrLn "Done."
 
-
-askForSub :: [S.SearchSubResponse] -> IO S.SearchSubResponse
+askForSub :: [S.SearchSubResponse] -> IO String
 askForSub list = do
                   let orderedList = sortBy sortSubtitlesGT list
                   let indexedList = zip ([1..] :: [Integer]) orderedList
                   putStrLn "Subtitles found: "
                   mapM_ (\(i, (S.SearchSubResponse is n r c)) -> putStrLn $ show i ++ "- "++ is ++ " " ++ n ++ "(" ++ r ++ "/" ++ c ++ ")" ) indexedList
-                  putStr "Choose a subtitle from the list: "
+                  putStr "Choose a subtitle from the list (0 to exit): "
                   n <- getLine
                   if validate n then
-                    case find (\(i, _) -> i == (read n)) indexedList of
-                        Nothing -> askForSub list
-                        Just (_, s) -> return s
-                   else
-                      askForSub list
+                    if (read n :: Integer) == 0 then
+                      return "0"
+                    else
+                      case find (\(i, _) -> i == (read n)) indexedList of
+                          Nothing -> askForSub list
+                          Just (_, s) -> return (S.idSubtitleFile s)
+                  else
+                    askForSub list
                 where
-                  validate n =  (not . null) n && (all isDigit) n && ((read n :: Int) > 0 && (read n :: Int) <= length list)
+                  validate n =  (not . null) n && (all isDigit) n && (read n <= length list)
 
 sortSubtitlesGT :: S.SearchSubResponse -> S.SearchSubResponse -> Ordering
 sortSubtitlesGT (S.SearchSubResponse _ _ r1 c1) (S.SearchSubResponse _ _ r2 c2) =

@@ -1,4 +1,4 @@
-module Download where
+module OpenSubtitles.Download where
 
 import Network.XmlRpc.Internals
 

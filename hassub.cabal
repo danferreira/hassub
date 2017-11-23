@@ -18,10 +18,10 @@ library
   exposed-modules:     Hassub
                       ,Options
                       ,File
-                      ,OpenSubtitles
-                      ,Login
-                      ,Search
-                      ,Download
+                      ,OpenSubtitles.API
+                      ,OpenSubtitles.Login
+                      ,OpenSubtitles.Search
+                      ,OpenSubtitles.Download
   build-depends:       base >= 4.7 && < 5
                       ,bytestring
                       ,haxr

@@ -1,4 +1,4 @@
-module Search where
+module OpenSubtitles.Search where
 
 import Network.XmlRpc.Internals
 

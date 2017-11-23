@@ -1,4 +1,4 @@
-module Login where
+module OpenSubtitles.Login where
 
 import Network.XmlRpc.Internals
 
