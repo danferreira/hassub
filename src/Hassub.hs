@@ -83,8 +83,8 @@ askForSub list = do
 
 sortSubtitlesGT :: S.SearchSubResponse -> S.SearchSubResponse -> Ordering
 sortSubtitlesGT (S.SearchSubResponse _ _ r1 c1) (S.SearchSubResponse _ _ r2 c2) =
-                  case compare (c r1) (c r2) of
-                    EQ -> compare (c c2) (c c1)
+                  case compare (c c1) (c c2) of
+                    EQ -> compare (c r2) (c r1)
                     LT -> GT
                     GT -> LT
               where
