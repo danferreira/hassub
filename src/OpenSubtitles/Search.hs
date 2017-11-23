@@ -3,11 +3,24 @@ module OpenSubtitles.Search where
 import Network.XmlRpc.Internals
 
 
-data SearchRequest = SearchRequest { filename :: String, subLanguageId :: String, movieHash :: String, movieByteSize :: Double } deriving Show
+data SearchRequest = SearchRequest {
+  filename :: String
+, subLanguageId :: String
+, movieHash :: String
+, movieByteSize :: Double
+} deriving Show
 
-data SearchResponse = SearchResponse { status :: String, result :: [SearchSubResponse] } deriving Show
+data SearchResponse = SearchResponse {
+  status :: String
+, result :: [SearchSubResponse]
+} deriving Show
 
-data SearchSubResponse = SearchSubResponse { idSubtitleFile :: String, subFilename :: String, subRating :: String, subDownloadsCnt :: String } deriving Show
+data SearchSubResponse = SearchSubResponse {
+  idSubtitleFile :: String
+, subFilename :: String
+, subRating :: String
+, subDownloadsCnt :: String
+} deriving Show
 
 
 instance XmlRpcType SearchRequest where

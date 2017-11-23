@@ -2,9 +2,15 @@ module OpenSubtitles.Download where
 
 import Network.XmlRpc.Internals
 
-data DownloadResponse = DownloadResponse { status :: String, result :: [DownloadSubResponse]  } deriving (Show)
+data DownloadResponse = DownloadResponse {
+    status :: String
+  , result :: [DownloadSubResponse]
+ } deriving (Show)
 
-data DownloadSubResponse = DownloadSubResponse { idsubtitlefile :: String, data_ :: String   } deriving (Show)
+data DownloadSubResponse = DownloadSubResponse {
+  idsubtitlefile :: String
+, data_ :: String
+} deriving (Show)
 
 
 instance XmlRpcType DownloadResponse where

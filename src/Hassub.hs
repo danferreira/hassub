@@ -14,6 +14,8 @@ import qualified OpenSubtitles.Download as D
 import qualified File as F
 import Appearance
 
+type SubLanguageId = String
+
 userAgent :: String
 userAgent = "myapp"
 
@@ -28,7 +30,7 @@ getSubtitle lang file = do
 
     (hash, size) <- F.getHashAndSize file
 
-    loginResp <- login "" "" lang userAgent
+    loginResp <- login (L.LoginRequest "" "" lang userAgent)
     checkResponseStatus (L.status loginResp)
 
     let token = fromJust (L.token loginResp)
