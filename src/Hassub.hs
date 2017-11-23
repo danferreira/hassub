@@ -4,7 +4,7 @@ import Data.List                  (find, sortBy)
 import Control.Monad              (when)
 import Data.Char                  (isDigit)
 import Data.Maybe                 (fromJust)
-import System.IO                  (hPutStrLn, stderr, stdout)
+import System.IO                  (hPutStrLn, stderr, stdout, hFlush)
 import System.Exit                (ExitCode (ExitSuccess, ExitFailure), exitWith)
 
 import OpenSubtitles.API
@@ -68,6 +68,7 @@ askForSub list = do
                   mapM_ (\(i, (S.SearchSubResponse _ n r c)) ->
                             putStrLn $ cyan ++ (padRight (show i) 5) ++ reset ++ (padRight n 50) ++ cyan ++ "(" ++ r ++ "/" ++ c ++ ")" ++ reset) indexedList
                   putStr $ "\nChoose a subtitle from the list" ++ yellow ++ " (0 to cancel): " ++ reset
+                  hFlush stdout
                   n <- getLine
                   if validate n then
                     if (read n :: Integer) == 0 then
