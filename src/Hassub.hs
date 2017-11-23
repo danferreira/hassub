@@ -12,28 +12,27 @@ import qualified OpenSubtitles.Login as L
 import qualified OpenSubtitles.Search as S
 import qualified OpenSubtitles.Download as D
 import qualified File as F
+import Appearance
 
 userAgent :: String
 userAgent = "myapp"
 
 getSubtitle :: SubLanguageId -> String -> IO ()
 getSubtitle lang file = do
-    putStrLn $ "Searching for " ++ file ++ " in " ++ lang
+
+    putStrLn "Searching for subtitles..."
 
     exist <- F.fileExist file
     when (not exist)
-      $ die ("File not found: " ++ file)
+      $ die (red ++ "File not found" ++ reset ++ ": " ++ file)
 
     (hash, size) <- F.getHashAndSize file
 
-    putStrLn "Logging..."
     loginResp <- login "" "" lang userAgent
     checkResponseStatus (L.status loginResp)
 
     let token = fromJust (L.token loginResp)
-    putStrLn ("Logged: " ++ token)
 
-    putStrLn "Searching..."
     searchResp <- search token [(S.SearchRequest file lang hash size)]
     checkResponseStatus (S.status searchResp)
 
@@ -41,13 +40,13 @@ getSubtitle lang file = do
     let count = length searchData
 
     when (count == 0)
-      $ die "No subtitles found"
+      $ exit (yellow ++ "No subtitles found")
 
-    putStrLn $ "Found " ++ show count ++ " results"
+    putStrLn $ green ++ "\nFound" ++ reset ++ ": " ++ show count ++ " result(s)"
     i <- askForSub searchData
 
     when (i == "0")
-      $ exit "Closing..."
+      $ exit (yellow ++ "No subtitles downloaded")
 
     putStrLn "Downloading..."
 
@@ -56,16 +55,17 @@ getSubtitle lang file = do
 
     putStrLn "Saving..."
     F.saveSubtitle file $ F.decodeAnddecompress (D.data_ $ head (D.result downResp))
-
-    putStrLn "Done."
+    putStrLn $ green ++ "Success" ++ reset ++ ": Subtitle saved."
 
 askForSub :: [S.SearchSubResponse] -> IO String
 askForSub list = do
                   let orderedList = sortBy sortSubtitlesGT list
                   let indexedList = zip ([1..] :: [Integer]) orderedList
-                  putStrLn "Subtitles found: "
-                  mapM_ (\(i, (S.SearchSubResponse is n r c)) -> putStrLn $ show i ++ "- "++ is ++ " " ++ n ++ "(" ++ r ++ "/" ++ c ++ ")" ) indexedList
-                  putStr "Choose a subtitle from the list (0 to exit): "
+
+                  putStrLn $ "\n"++ bold ++ blue ++ (padRight "#" 5) ++ (padRight "Subtitle" 50) ++ "(Rate/Downloads)"++reset
+                  mapM_ (\(i, (S.SearchSubResponse _ n r c)) ->
+                            putStrLn $ cyan ++ (padRight (show i) 5) ++ reset ++ (padRight n 50) ++ cyan ++ "(" ++ r ++ "/" ++ c ++ ")" ++ reset) indexedList
+                  putStr $ "\nChoose a subtitle from the list" ++ yellow ++ " (0 to cancel): " ++ reset
                   n <- getLine
                   if validate n then
                     if (read n :: Integer) == 0 then
@@ -77,6 +77,8 @@ askForSub list = do
                   else
                     askForSub list
                 where
+                  padRight v n | length v >= n = padRight ((take (n - 4) v) ++ "...") n
+                               | otherwise = take n $ v ++ repeat ' '
                   validate n =  (not . null) n && (all isDigit) n && (read n <= length list)
 
 sortSubtitlesGT :: S.SearchSubResponse -> S.SearchSubResponse -> Ordering
@@ -90,14 +92,14 @@ sortSubtitlesGT (S.SearchSubResponse _ _ r1 c1) (S.SearchSubResponse _ _ r2 c2) 
 
 checkResponseStatus :: String -> IO ()
 checkResponseStatus ('2':_) = return ()
-checkResponseStatus s = die s
+checkResponseStatus s = die $ red ++ s ++ reset
 
 exit :: String -> IO ()
 exit msg = do
-  hPutStrLn stdout msg
+  hPutStrLn stdout $ msg ++ reset
   exitWith ExitSuccess
 
 die :: String -> IO ()
 die msg = do
-  hPutStrLn stderr msg
+  hPutStrLn stderr $ msg ++ reset
   exitWith (ExitFailure 1)
