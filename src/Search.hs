@@ -17,8 +17,8 @@ instance XmlRpcType SearchRequest where
       getType _ = TStruct
 
 instance XmlRpcType SearchResponse where
-      fromValue s = do
-                  v <- fromValue s
+      fromValue res = do
+                  v <- fromValue res
                   s <- getField "status" v
                   d <- getField "data" v
                   return SearchResponse { status = s, result = d }

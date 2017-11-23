@@ -15,8 +15,13 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     OpenSubtitles
+  exposed-modules:     Hassub
                       ,Options
+                      ,File
+                      ,OpenSubtitles
+                      ,Login
+                      ,Search
+                      ,Download
   build-depends:       base >= 4.7 && < 5
                       ,bytestring
                       ,haxr
@@ -25,7 +30,6 @@ library
                       ,hex
                       ,zlib
                       ,base64-bytestring
-                      ,base64-string
                       ,directory
   default-language:    Haskell2010
 

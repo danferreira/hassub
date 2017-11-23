@@ -5,7 +5,6 @@ import Network.XmlRpc.Client
 import Login
 import Search
 import Download
-import Options
 
 type Username = String
 type Password = String

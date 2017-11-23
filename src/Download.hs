@@ -1,6 +1,3 @@
-
-{-# LANGUAGE OverloadedStrings #-}
-
 module Download where
 
 import Network.XmlRpc.Internals

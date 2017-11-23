@@ -37,8 +37,12 @@ getSubtitle lang file = do
     checkResponseStatus (S.status searchResp)
 
     let searchData = S.result searchResp
+    let count = length searchData
 
-    putStrLn $ "Found " ++ (show . length) searchData ++ " results"
+    when (count == 0)
+      $ die "No subtitles found"
+
+    putStrLn $ "Found " ++ show count ++ " results"
     (S.SearchSubResponse i _ _ _) <- askForSub searchData
     putStrLn "Downloading..."
 

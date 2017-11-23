@@ -1,8 +1,9 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module File (getHashAndSize, decodeAnddecompress, saveSubtitle, fileExist) where
 
 import Control.Exception
 import System.IO(openBinaryFile,hClose,hFileSize,hSeek,IOMode(ReadMode),SeekMode(AbsoluteSeek,SeekFromEnd))
-import qualified Data.ByteString.Lazy as L(hGet,unpack)
 import Data.Binary.Get(runGet,getWord64le)
 import Data.Binary.Put(runPut,putWord64le)
 import Data.Word(Word64)
@@ -11,10 +12,9 @@ import Data.Bits.Utils(w82s)
 import Data.Hex(hex)
 import System.Directory
 import Codec.Compression.GZip (decompress)
+import qualified Data.ByteString.Lazy as L(hGet,unpack)
 import qualified Data.ByteString.Lazy.Char8 as LBS8
-import qualified Codec.Binary.Base64.String as Base64
-
-import Options
+import qualified Data.ByteString.Base64.Lazy as LB64
 
 fileExist :: FilePath -> IO Bool
 fileExist = doesFileExist
@@ -34,7 +34,13 @@ getHashAndSize fn = do
   (w64, fs) <- shortsum fn
   return $ (,) (hex $ w82s $ reverse (L.unpack $ runPut $ putWord64le w64)) fs
 
-decodeAnddecompress = decompress . LBS8.pack . Base64.decode
+decodeAnddecompress :: [Char] -> LBS8.ByteString
+decodeAnddecompress = decompress . decode . LBS8.pack
+
+decode :: LBS8.ByteString -> LBS8.ByteString
+decode bs = case LB64.decode bs of
+              (Left err) -> error err
+              (Right x) -> x
 
 saveSubtitle :: String -> LBS8.ByteString -> IO ()
 saveSubtitle name content = LBS8.writeFile (getSubName) content
