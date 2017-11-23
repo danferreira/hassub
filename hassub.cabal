@@ -16,7 +16,6 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Hassub
-                      ,Options
                       ,File
                       ,OpenSubtitles.API
                       ,OpenSubtitles.Login
@@ -31,6 +30,7 @@ library
                       ,zlib
                       ,base64-bytestring
                       ,directory
+                      ,docopt
   default-language:    Haskell2010
 
 executable hassub-exe

@@ -1,16 +1,17 @@
-module Hassub where
+module Hassub (getSubtitle) where
 
-import Data.List
-import Control.Monad
-import Data.Char
-import Data.Maybe
+import Data.List                  (find, sortBy)
+import Control.Monad              (when)
+import Data.Char                  (isDigit)
+import Data.Maybe                 (fromJust)
+import System.IO                  (hPutStrLn, stderr, stdout)
+import System.Exit                (ExitCode (ExitSuccess, ExitFailure), exitWith)
 
 import OpenSubtitles.API
 import qualified OpenSubtitles.Login as L
 import qualified OpenSubtitles.Search as S
 import qualified OpenSubtitles.Download as D
-import File
-import Options
+import qualified File as F
 
 userAgent :: String
 userAgent = "myapp"
@@ -19,11 +20,11 @@ getSubtitle :: SubLanguageId -> String -> IO ()
 getSubtitle lang file = do
     putStrLn $ "Searching for " ++ file ++ " in " ++ lang
 
-    exist <- fileExist file
+    exist <- F.fileExist file
     when (not exist)
       $ die ("File not found: " ++ file)
 
-    (hash, size) <- getHashAndSize file
+    (hash, size) <- F.getHashAndSize file
 
     putStrLn "Logging..."
     loginResp <- login "" "" lang userAgent
@@ -54,7 +55,7 @@ getSubtitle lang file = do
     checkResponseStatus (D.status downResp)
 
     putStrLn "Saving..."
-    saveSubtitle file $ decodeAnddecompress (D.data_ $ head (D.result downResp))
+    F.saveSubtitle file $ F.decodeAnddecompress (D.data_ $ head (D.result downResp))
 
     putStrLn "Done."
 
@@ -90,3 +91,13 @@ sortSubtitlesGT (S.SearchSubResponse _ _ r1 c1) (S.SearchSubResponse _ _ r2 c2) 
 checkResponseStatus :: String -> IO ()
 checkResponseStatus ('2':_) = return ()
 checkResponseStatus s = die s
+
+exit :: String -> IO ()
+exit msg = do
+  hPutStrLn stdout msg
+  exitWith ExitSuccess
+
+die :: String -> IO ()
+die msg = do
+  hPutStrLn stderr msg
+  exitWith (ExitFailure 1)
