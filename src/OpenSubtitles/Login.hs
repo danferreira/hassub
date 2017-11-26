@@ -15,9 +15,6 @@ data LoginResponse = LoginResponse {
 } deriving Show
 
 instance XmlRpcType LoginResponse where
-      -- toValue l = toValue $ [("token", toValue (token l)),
-      --                        ("status", toValue (status l))]
-
       fromValue l = do
                     v <- fromValue l
                     t <- getFieldMaybe "token" v

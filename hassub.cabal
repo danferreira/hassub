@@ -21,6 +21,7 @@ library
                       ,OpenSubtitles.Login
                       ,OpenSubtitles.Search
                       ,OpenSubtitles.Download
+                      ,OpenSubtitles.Logout
   build-depends:       base >= 4.7 && < 5
                       ,ansi-terminal
                       ,base64-bytestring

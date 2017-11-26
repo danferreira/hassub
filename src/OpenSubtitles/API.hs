@@ -5,6 +5,7 @@ import Network.XmlRpc.Client
 import qualified OpenSubtitles.Login as L
 import qualified OpenSubtitles.Search as S
 import qualified OpenSubtitles.Download as D
+import qualified OpenSubtitles.Logout as LO
 
 type Token = String
 type SubtitleId = String
@@ -21,5 +22,8 @@ search = remote server "SearchSubtitles"
 
 download :: Token -> [SubtitleId] -> IO D.DownloadResponse
 download = remote server "DownloadSubtitles"
+
+logout :: Token -> IO LO.LogoutResponse
+logout = remote server "LogOut"
 
 --Endpoints
