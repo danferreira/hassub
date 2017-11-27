@@ -1,6 +1,6 @@
 module OpenSubtitles.Download where
 
-import Network.XmlRpc.Internals
+import           Network.XmlRpc.Internals
 
 data DownloadResponse = DownloadResponse {
     status :: String
@@ -9,7 +9,7 @@ data DownloadResponse = DownloadResponse {
 
 data DownloadSubResponse = DownloadSubResponse {
   idsubtitlefile :: String
-, data_ :: String
+, data_          :: String
 } deriving (Show)
 
 

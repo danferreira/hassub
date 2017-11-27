@@ -1,18 +1,19 @@
 module Hassub (getSubtitles) where
 
-import Data.List                  (find, sortBy)
-import Control.Monad              (when)
-import Data.Char                  (isDigit)
-import Data.Maybe                 (fromJust)
-import System.IO                  (hPutStrLn, stderr, stdout, hFlush)
-import System.Exit                (ExitCode (ExitSuccess, ExitFailure), exitWith)
+import           Control.Monad          (unless, when)
+import           Data.Char              (isDigit)
+import           Data.List              (find, sortBy)
+import           Data.Maybe             (fromJust)
+import           System.Exit            (ExitCode (ExitFailure, ExitSuccess),
+                                         exitSuccess, exitWith)
+import           System.IO              (hFlush, hPutStrLn, stderr, stdout)
 
-import OpenSubtitles.API
-import qualified OpenSubtitles.Login as L
-import qualified OpenSubtitles.Search as S
+import           Appearance
+import qualified File                   as F
+import           OpenSubtitles.API
 import qualified OpenSubtitles.Download as D
-import qualified File as F
-import Appearance
+import qualified OpenSubtitles.Login    as L
+import qualified OpenSubtitles.Search   as S
 
 type SubLanguageId = String
 type Filename = String
@@ -24,7 +25,7 @@ userAgent = "myapp"
 getAtt :: SubLanguageId -> Filename -> IO S.SearchRequest
 getAtt dLang f = do
             exist <- F.fileExist f
-            when (not exist)
+            unless exist
               $ die (red ++ "File not found" ++ reset ++ ": " ++ f)
 
             (hash, size) <- F.getHashAndSize f
@@ -52,7 +53,7 @@ getSubtitles lang sm fs = do
 
 getSubtitle :: Token -> SilentMode -> S.SearchRequest -> IO ()
 getSubtitle token sm f = do
-    putStrLn $ "\nSearching for: " ++ green ++ (S.filename f) ++ reset
+    putStrLn $ "\nSearching for: " ++ green ++ S.filename f ++ reset
     searchResp <- search token [f]
     checkResponseStatus (S.status searchResp)
 
@@ -82,15 +83,15 @@ askForSub :: SilentMode -> [S.SearchSubResponse] -> IO String
 askForSub sm list = do
                     let orderedList = sortBy sortSubtitlesGT list
 
-                    if (sm) then
+                    if sm then
                       return $ S.idSubtitleFile (head orderedList)
                     else
                       do
                       let indexedList = zip ([1..] :: [Integer]) orderedList
 
-                      putStrLn $ "\n"++ bold ++ blue ++ (padRight "#" 5) ++ (padRight "Subtitle" 50) ++ "(Rate/Downloads)"++reset
-                      mapM_ (\(i, (S.SearchSubResponse _ n r c)) ->
-                                putStrLn $ cyan ++ (padRight (show i) 5) ++ reset ++ (padRight n 50) ++ cyan ++ "(" ++ r ++ "/" ++ c ++ ")" ++ reset) indexedList
+                      putStrLn $ "\n"++ bold ++ blue ++ padRight "#" 5 ++ padRight "Subtitle" 50 ++ "(Rate/Downloads)"++reset
+                      mapM_ (\(i, S.SearchSubResponse _ n r c) ->
+                                putStrLn $ cyan ++ padRight (show i) 5 ++ reset ++ padRight n 50 ++ cyan ++ "(" ++ r ++ "/" ++ c ++ ")" ++ reset) indexedList
                       putStr $ "\nChoose a subtitle from the list" ++ yellow ++ " (0 to cancel): " ++ reset
                       hFlush stdout
                       n <- getLine
@@ -98,15 +99,15 @@ askForSub sm list = do
                         if (read n :: Integer) == 0 then
                           return "0"
                         else
-                          case find (\(i, _) -> i == (read n)) indexedList of
-                              Nothing -> askForSub sm list
+                          case find (\(i, _) -> i == read n) indexedList of
+                              Nothing     -> askForSub sm list
                               Just (_, s) -> return (S.idSubtitleFile s)
                       else
                         askForSub sm list
                 where
-                  padRight v n | length v >= n = padRight ((take (n - 4) v) ++ "...") n
+                  padRight v n | length v >= n = padRight (take (n - 4) v ++ "...") n
                                | otherwise = take n $ v ++ repeat ' '
-                  validate n =  (not . null) n && (all isDigit) n && (read n <= length list)
+                  validate n =  (not . null) n && all isDigit n && (read n <= length list)
 
 sortSubtitlesGT :: S.SearchSubResponse -> S.SearchSubResponse -> Ordering
 sortSubtitlesGT (S.SearchSubResponse _ _ r1 c1) (S.SearchSubResponse _ _ r2 c2) =
@@ -115,16 +116,16 @@ sortSubtitlesGT (S.SearchSubResponse _ _ r1 c1) (S.SearchSubResponse _ _ r2 c2) 
                     LT -> GT
                     GT -> LT
               where
-                c n = (read n :: Double)
+                c n = read n :: Double
 
 checkResponseStatus :: String -> IO ()
 checkResponseStatus ('2':_) = return ()
-checkResponseStatus s = die $ red ++ s ++ reset
+checkResponseStatus s       = die $ red ++ s ++ reset
 
 exit :: String -> IO ()
 exit msg = do
-  hPutStrLn stdout $ msg ++ reset
-  exitWith ExitSuccess
+  putStrLn $ msg ++ reset
+  exitSuccess
 
 die :: String -> IO ()
 die msg = do

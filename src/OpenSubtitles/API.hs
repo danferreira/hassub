@@ -1,11 +1,11 @@
 module OpenSubtitles.API where
 
-import Network.XmlRpc.Client
+import           Network.XmlRpc.Client
 
-import qualified OpenSubtitles.Login as L
-import qualified OpenSubtitles.Search as S
 import qualified OpenSubtitles.Download as D
-import qualified OpenSubtitles.Logout as LO
+import qualified OpenSubtitles.Login    as L
+import qualified OpenSubtitles.Logout   as LO
+import qualified OpenSubtitles.Search   as S
 
 type Token = String
 type SubtitleId = String

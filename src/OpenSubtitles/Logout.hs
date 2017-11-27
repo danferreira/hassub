@@ -1,6 +1,6 @@
 module OpenSubtitles.Logout where
 
-import Network.XmlRpc.Internals
+import           Network.XmlRpc.Internals
 
 data LogoutResponse = LogoutResponse {
   status :: String

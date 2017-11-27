@@ -1,6 +1,6 @@
 module Appearance where
 
-import System.Console.ANSI
+import           System.Console.ANSI
 
 yellow :: String
 yellow  = setSGRCode [SetColor Foreground Vivid Yellow]

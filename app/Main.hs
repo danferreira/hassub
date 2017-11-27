@@ -2,12 +2,12 @@
 
 module Main where
 
-import System.Environment         (getArgs)
-import Control.Monad              (when)
-import System.Exit (exitSuccess)
-import System.Directory
-import System.Console.Docopt
-import Hassub
+import           Control.Monad         (when)
+import           Hassub
+import           System.Console.Docopt
+import           System.Directory
+import           System.Environment    (getArgs)
+import           System.Exit           (exitSuccess)
 
 doc :: Docopt
 doc = [docopt|
@@ -37,7 +37,7 @@ main = do
         when (isPresent args (shortOption 'h')) $ exitWithUsage doc
         when (isPresent args (shortOption 'v')) $ putStrLn version >> exitSuccess
 
-        let (Just lang) = args `getArg` (shortOption 'l')
+        let (Just lang) = args `getArg` shortOption 'l'
             silent = isPresent args (shortOption 's')
 
         files <- getFiles args
@@ -45,13 +45,13 @@ main = do
         getSubtitles lang silent files
 
 getFiles :: Arguments -> IO [String]
-getFiles args = if (isPresent args (longOption "all")) then do
+getFiles args = if isPresent args (longOption "all") then do
               contents <- listDirectory "."
               return $ filter (\f -> getExtension f `elem` supportedExt) contents
            else
-             return $ args `getAllArgs` (argument "file")
+             return $ args `getAllArgs` argument "file"
            where
-             getExtension = (reverse . takeWhile (/= '.') . reverse)
+             getExtension = reverse . takeWhile (/= '.') . reverse
 
 supportedExt :: [String]
 supportedExt = ["mkv", "avi", "mp4"]

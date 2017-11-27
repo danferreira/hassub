@@ -2,19 +2,21 @@
 
 module File (getHashAndSize, decodeAnddecompress, saveSubtitle, fileExist) where
 
-import Control.Exception
-import System.IO(openBinaryFile,hClose,hFileSize,hSeek,IOMode(ReadMode),SeekMode(AbsoluteSeek,SeekFromEnd))
-import Data.Binary.Get(runGet,getWord64le)
-import Data.Binary.Put(runPut,putWord64le)
-import Data.Word(Word64)
-import Control.Monad(foldM)
-import Data.Bits.Utils(w82s)
-import Data.Hex(hex)
-import System.Directory
-import Codec.Compression.GZip (decompress)
-import qualified Data.ByteString.Lazy as L(hGet,unpack)
-import qualified Data.ByteString.Lazy.Char8 as LBS8
+import           Codec.Compression.GZip      (decompress)
+import           Control.Exception
+import           Control.Monad               (foldM)
+import           Data.Binary.Get             (getWord64le, runGet)
+import           Data.Binary.Put             (putWord64le, runPut)
+import           Data.Bits.Utils             (w82s)
 import qualified Data.ByteString.Base64.Lazy as LB64
+import qualified Data.ByteString.Lazy        as L (hGet, unpack)
+import qualified Data.ByteString.Lazy.Char8  as LBS8
+import           Data.Hex                    (hex)
+import           Data.Word                   (Word64)
+import           System.Directory
+import           System.IO                   (IOMode (ReadMode), SeekMode (AbsoluteSeek, SeekFromEnd),
+                                              hClose, hFileSize, hSeek,
+                                              openBinaryFile)
 
 fileExist :: FilePath -> IO Bool
 fileExist = doesFileExist
@@ -40,9 +42,9 @@ decodeAnddecompress = decompress . decode . LBS8.pack
 decode :: LBS8.ByteString -> LBS8.ByteString
 decode bs = case LB64.decode bs of
               (Left err) -> error err
-              (Right x) -> x
+              (Right x)  -> x
 
 saveSubtitle :: String -> LBS8.ByteString -> IO ()
-saveSubtitle name content = LBS8.writeFile (getSubName) content
+saveSubtitle name = LBS8.writeFile getSubName
           where
             getSubName = (reverse . dropWhile (/= '.') . reverse) name ++ "srt"

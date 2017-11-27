@@ -1,12 +1,12 @@
 module OpenSubtitles.Search where
 
-import Network.XmlRpc.Internals
+import           Network.XmlRpc.Internals
 
 
 data SearchRequest = SearchRequest {
-  filename :: String
+  filename      :: String
 , subLanguageId :: String
-, movieHash :: String
+, movieHash     :: String
 , movieByteSize :: Double
 } deriving Show
 
@@ -16,15 +16,15 @@ data SearchResponse = SearchResponse {
 } deriving Show
 
 data SearchSubResponse = SearchSubResponse {
-  idSubtitleFile :: String
-, subFilename :: String
-, subRating :: String
+  idSubtitleFile  :: String
+, subFilename     :: String
+, subRating       :: String
 , subDownloadsCnt :: String
 } deriving Show
 
 
 instance XmlRpcType SearchRequest where
-      toValue l = toValue $ [("sublanguageid", toValue (subLanguageId l)),
+      toValue l = toValue [("sublanguageid", toValue (subLanguageId l)),
                            ("moviehash", toValue (movieHash l)),
                            ("moviebytesize", toValue (movieByteSize l))]
       getType _ = TStruct

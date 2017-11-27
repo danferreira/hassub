@@ -1,16 +1,16 @@
 module OpenSubtitles.Login where
 
-import Network.XmlRpc.Internals
+import           Network.XmlRpc.Internals
 
 data LoginRequest = LoginRequest {
-  username :: String
-, password :: String
-, language :: String
+  username  :: String
+, password  :: String
+, language  :: String
 , useragent :: String
 } deriving Show
 
 data LoginResponse = LoginResponse {
-  token :: Maybe String,
+  token  :: Maybe String,
   status :: String
 } deriving Show
 
