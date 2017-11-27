@@ -16,27 +16,27 @@ import           Data.Word                   (Word64)
 import           System.Directory
 import           System.IO                   (IOMode (ReadMode), SeekMode (AbsoluteSeek, SeekFromEnd),
                                               hClose, hFileSize, hSeek,
-                                              openBinaryFile)
+                                              withBinaryFile)
 
 fileExist :: FilePath -> IO Bool
 fileExist = doesFileExist
 
 shortsum :: FilePath -> IO (Word64, Double)
-shortsum filename = bracket (openBinaryFile filename ReadMode) hClose $ \h -> do
+shortsum filename = withBinaryFile filename ReadMode $ \h -> do
   fs <- hFileSize h
   hSeek h AbsoluteSeek 0 ; begin <- L.hGet h chunksize
   hSeek h SeekFromEnd (-(toInteger chunksize)) ; end <- L.hGet h chunksize
-  return $ (,) ((flip runGet $ begin) $ chunksum $ (flip runGet $ end) (chunksum . fromInteger $ fs)) (fromInteger fs)
+  return $ (,) ((`runGet` begin) $ chunksum $ (`runGet` end) (chunksum . fromInteger $ fs)) (fromInteger fs)
   where
     chunksize = 0x10000
-    chunksum n = foldM (\a _ -> getWord64le >>= return . (+a)) n [1..(chunksize`div`8)]
+    chunksum n = foldM (\a _ -> (+a) <$> getWord64le) n [1..(chunksize`div`8)]
 
 getHashAndSize :: String -> IO (String, Double)
 getHashAndSize fn = do
   (w64, fs) <- shortsum fn
   return $ (,) (hex $ w82s $ reverse (L.unpack $ runPut $ putWord64le w64)) fs
 
-decodeAnddecompress :: [Char] -> LBS8.ByteString
+decodeAnddecompress :: String -> LBS8.ByteString
 decodeAnddecompress = decompress . decode . LBS8.pack
 
 decode :: LBS8.ByteString -> LBS8.ByteString
