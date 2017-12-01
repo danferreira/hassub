@@ -10,7 +10,7 @@ import           System.IO              (hFlush, hPutStrLn, stderr, stdout)
 
 import           Appearance
 import qualified File                   as F
-import           OpenSubtitles.API
+import qualified OpenSubtitles.API      as A
 import qualified OpenSubtitles.Download as D
 import qualified OpenSubtitles.Login    as L
 import qualified OpenSubtitles.Search   as S
@@ -18,9 +18,11 @@ import qualified OpenSubtitles.Search   as S
 type SubLanguageId = String
 type Filename = String
 type SilentMode = Bool
+type Username = String
+type Password = String
 
 userAgent :: String
-userAgent = "myapp"
+userAgent = "TemporaryUserAgent"
 
 getAtt :: SubLanguageId -> Filename -> IO S.SearchRequest
 getAtt dLang f = do
@@ -31,14 +33,16 @@ getAtt dLang f = do
             (hash, size) <- F.getHashAndSize f
             return (S.SearchRequest f dLang hash size)
 
-getSubtitles :: SubLanguageId -> SilentMode -> [Filename] -> IO ()
-getSubtitles lang sm fs = do
-    putStrLn "Searching for subtitles..."
+getSubtitles :: SubLanguageId -> Username -> Password -> SilentMode -> [Filename] -> IO ()
+getSubtitles lang user pass sm fs = do
+    putStrLn $ "Searching for subtitles using " ++ green ++ lang ++ reset ++ "..."
 
     files <- mapM (getAtt lang) fs
 
-    putStrLn "Logging in..."
-    loginResp <- login (L.LoginRequest "" "" lang userAgent)
+    let u = if null user then "anonymously" else  "as " ++ user
+
+    putStrLn $ "Logging in " ++ u
+    loginResp <- A.login (L.LoginRequest user pass lang userAgent)
     checkResponseStatus (L.status loginResp)
 
     let token = fromJust (L.token loginResp)
@@ -46,15 +50,15 @@ getSubtitles lang sm fs = do
     mapM_ (getSubtitle token sm) files
 
     putStrLn "\nLogging out..."
-    logoutResp <- logout token
+    _ <- A.logout token
 
     putStrLn $ green ++ "All subtitles saved." ++ reset
 
 
-getSubtitle :: Token -> SilentMode -> S.SearchRequest -> IO ()
+getSubtitle :: A.Token -> SilentMode -> S.SearchRequest -> IO ()
 getSubtitle token sm f = do
     putStrLn $ "\nSearching for: " ++ green ++ S.filename f ++ reset
-    searchResp <- search token [f]
+    searchResp <- A.search token [f]
     checkResponseStatus (S.status searchResp)
 
     let searchData = S.result searchResp
@@ -72,7 +76,7 @@ getSubtitle token sm f = do
 
     putStrLn "Downloading..."
 
-    downResp <- download token [i]
+    downResp <- A.download token [i]
     checkResponseStatus (D.status downResp)
 
     F.saveSubtitle (S.filename f) $ F.decodeAnddecompress (D.data_ $ head (D.result downResp))

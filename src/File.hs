@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module File (getHashAndSize, decodeAnddecompress, saveSubtitle, fileExist) where
+module File (getHashAndSize, decodeAnddecompress, saveSubtitle, fileExist, getFilesInDirectory) where
 
 import           Codec.Compression.GZip      (decompress)
 import           Control.Exception
@@ -17,6 +17,7 @@ import           System.Directory
 import           System.IO                   (IOMode (ReadMode), SeekMode (AbsoluteSeek, SeekFromEnd),
                                               hClose, hFileSize, hSeek,
                                               withBinaryFile)
+import qualified Utils                       as U
 
 fileExist :: FilePath -> IO Bool
 fileExist = doesFileExist
@@ -48,3 +49,9 @@ saveSubtitle :: String -> LBS8.ByteString -> IO ()
 saveSubtitle name = LBS8.writeFile getSubName
           where
             getSubName = (reverse . dropWhile (/= '.') . reverse) name ++ "srt"
+
+getFilesInDirectory :: IO [String]
+getFilesInDirectory = filter (\f -> getExtension f `elem` U.supportedExt) <$> listDirectory "."
+
+getExtension :: String -> String
+getExtension = reverse . takeWhile (/= '.') . reverse
