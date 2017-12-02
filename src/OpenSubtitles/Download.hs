@@ -14,6 +14,8 @@ data DownloadSubResponse = DownloadSubResponse {
 
 
 instance XmlRpcType DownloadResponse where
+      toValue l = toValue [("status", toValue (status l)),
+                           ("data", toValue (result l))]
       fromValue s = do
                   v <- fromValue s
                   s <- getField "status" v
@@ -22,6 +24,8 @@ instance XmlRpcType DownloadResponse where
       getType _ = TStruct
 
 instance XmlRpcType DownloadSubResponse where
+      toValue l = toValue [("idsubtitlefile", toValue (idsubtitlefile l)),
+                           ("data", toValue (data_ l))]
       fromValue l = do
                     v <- fromValue l
                     s <- getField "idsubtitlefile" v
