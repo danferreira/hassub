@@ -48,7 +48,7 @@ main = do
         let langMaybe = args `getArg` shortOption 'l' <|> get defaultLang cf
         when (isNothing langMaybe) $ putStrLn "Parameter --lang or default configuration not found" >> exitSuccess
         let lang = fromJust langMaybe
-        unless (lang `elem` supportedLangs) $ putStrLn ("Unknown language: "++ yellow ++ lang ++ reset ++". Please, use "++green++"ISO 639-2"++reset++" codes") >> exitSuccess
+        unless (lang `elem` supportedLangs) $ putStrLn ("Unknown language: "++ yellow lang ++". Please, use " ++ green "ISO 639-2" ++ " codes") >> exitSuccess
         let silent = isPresent args (shortOption 's')
         files <- if isPresent args (longOption "all") then
                     F.getFilesInDirectory

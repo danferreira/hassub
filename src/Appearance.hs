@@ -1,23 +1,24 @@
-module Appearance where
+module Appearance (yellow, cyan, red, green, blue, bold) where
 
 import           System.Console.ANSI
 
-yellow :: String
-yellow  = setSGRCode [SetColor Foreground Vivid Yellow]
-cyan :: String
-cyan  = setSGRCode [SetColor Foreground Vivid Cyan]
-red :: String
-red  = setSGRCode [SetColor Foreground Vivid Red]
-green :: String
-green = setSGRCode [SetColor Foreground Vivid Green]
-blue :: String
-blue  = setSGRCode [SetColor Foreground Vivid Blue]
+yellow :: String -> String
+yellow = setColor Yellow
 
-bold :: String
-bold = setSGRCode [SetConsoleIntensity BoldIntensity]
+cyan :: String -> String
+cyan = setColor Cyan
 
-underline :: String
-underline = setSGRCode [SetUnderlining SingleUnderline]
+red :: String -> String
+red = setColor Red
 
-reset :: String
-reset = setSGRCode [Reset]
+green :: String -> String
+green = setColor Green
+
+blue :: String -> String
+blue = setColor Blue
+
+bold :: String -> String
+bold s = setSGRCode [SetConsoleIntensity BoldIntensity] ++ s ++ setSGRCode [Reset]
+
+setColor :: Color -> String -> String
+setColor c s = setSGRCode [SetColor Foreground Vivid c] ++ s ++ setSGRCode [Reset]

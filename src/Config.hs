@@ -46,12 +46,12 @@ setConfig = do
                 cUser = fromMaybe "" $ get username cf
             putStrLn "Editing the configuration file.\n"
             putStrLn "Set a default language so you wont need to specify -l parameter everytime"
-            putStr $ "Default Language"++yellow++" ["++ cLang ++"]: " ++ reset
+            putStr $ "Default Language" ++ yellow (" ["++ cLang ++"]: ")
             hFlush stdout
             l <- getLine
             let lang = if null l then cLang else l
-            putStrLn $ "\nSet your login from " ++ green ++ "opensubtitles.org" ++ reset ++ ". Can be left blank if logging in anonymously."
-            putStr $ "Username: " ++ reset
+            putStrLn $ "\nSet your login from " ++ green "opensubtitles.org" ++ ". Can be left blank if logging in anonymously."
+            putStr "Username: "
             hFlush stdout
             user <- getLine
             pass <- if null user then
@@ -62,7 +62,7 @@ setConfig = do
                         (md5s . Str) <$> getLine
             fp <- configFile
             encodeFile fp $ Config lang user pass
-            putStrLn $"Configuration saved in: " ++ fp
+            putStrLn $"Configuration saved in: " ++ green fp
             where
               get f cf = case cf of
                            Just c  -> Just (f c)
