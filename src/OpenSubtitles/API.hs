@@ -12,6 +12,7 @@ type SubtitleId = String
 
 --Endpoints
 
+server :: String
 server = "http://api.opensubtitles.org/xml-rpc"
 
 login :: L.LoginRequest -> IO L.LoginResponse

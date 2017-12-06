@@ -3,7 +3,6 @@
 module File (getHashAndSize, decodeAnddecompress, saveSubtitle, fileExist, getFilesInDirectory) where
 
 import           Codec.Compression.GZip      (decompress)
-import           Control.Exception
 import           Control.Monad               (foldM)
 import           Data.Binary.Get             (getWord64le, runGet)
 import           Data.Binary.Put             (putWord64le, runPut)
@@ -15,8 +14,7 @@ import           Data.Hex                    (hex)
 import           Data.Word                   (Word64)
 import           System.Directory
 import           System.IO                   (IOMode (ReadMode), SeekMode (AbsoluteSeek, SeekFromEnd),
-                                              hClose, hFileSize, hSeek,
-                                              withBinaryFile)
+                                              hFileSize, hSeek, withBinaryFile)
 import qualified Utils                       as U
 
 fileExist :: FilePath -> IO Bool

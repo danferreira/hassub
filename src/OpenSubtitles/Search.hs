@@ -2,7 +2,6 @@ module OpenSubtitles.Search where
 
 import           Network.XmlRpc.Internals
 
-
 data SearchRequest = SearchRequest {
   filename      :: String
 , subLanguageId :: String

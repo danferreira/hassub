@@ -43,7 +43,6 @@ setConfig :: IO ()
 setConfig = do
             cf <- getConfig
             let cLang = fromMaybe "eng" $ get defaultLang cf
-                cUser = fromMaybe "" $ get username cf
             putStrLn "Editing the configuration file.\n"
             putStrLn "Set a default language so you wont need to specify -l parameter everytime"
             putStr $ "Default Language" ++ yellow (" ["++ cLang ++"]: ")

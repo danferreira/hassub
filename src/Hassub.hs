@@ -4,8 +4,8 @@ import           Control.Monad          (unless, when)
 import           Data.Char              (isDigit)
 import           Data.List              (find, sortBy)
 import           Data.Maybe             (fromJust)
-import           System.Exit            (ExitCode (ExitFailure, ExitSuccess),
-                                         exitSuccess, exitWith)
+import           System.Exit            (ExitCode (ExitFailure), exitSuccess,
+                                         exitWith)
 import           System.IO              (hFlush, hPutStrLn, stderr, stdout)
 
 import           Appearance
@@ -93,9 +93,9 @@ askForSub sm list = do
                       do
                       let indexedList = zip ([1..] :: [Integer]) orderedList
 
-                      putStrLn $ "\n" ++ (bold . blue) (padRight "#" 5 ++ padRight "Subtitle" 50 ++ "(Rate/Downloads)")
+                      putStrLn $ "\n" ++ (bold . blue) (padRight 5 "#" ++ padRight 50 "Subtitle" ++ "(Rate/Downloads)")
                       mapM_ (\(i, S.SearchSubResponse _ n r c) ->
-                                putStrLn $ cyan (padRight (show i) 5) ++ padRight n 50 ++ cyan ("(" ++ r ++ "/" ++ c ++ ")")) indexedList
+                                putStrLn $ cyan (padRight 5 (show i)) ++ padRight 50 n ++ cyan ("(" ++ r ++ "/" ++ c ++ ")")) indexedList
                       putStr $ "\nChoose a subtitle from the list" ++ yellow " (0 to cancel): "
                       hFlush stdout
                       n <- getLine
@@ -109,7 +109,7 @@ askForSub sm list = do
                       else
                         askForSub sm list
                 where
-                  padRight v n | length v >= n = padRight (take (n - 4) v ++ "...") n
+                  padRight n v | length v >= n = padRight n (take (n - 4) v ++ "...")
                                | otherwise = take n $ v ++ repeat ' '
                   validate n =  (not . null) n && all isDigit n && (read n <= length list)
 

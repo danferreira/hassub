@@ -18,9 +18,9 @@ instance XmlRpcType DownloadResponse where
                            ("data", toValue (result l))]
       fromValue s = do
                   v <- fromValue s
-                  s <- getField "status" v
+                  st <- getField "status" v
                   d <- getField "data" v
-                  return DownloadResponse { status = s, result = d }
+                  return DownloadResponse { status = st, result = d }
       getType _ = TStruct
 
 instance XmlRpcType DownloadSubResponse where
